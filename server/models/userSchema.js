@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
-const validator = require("validator")
-const userSchema = new mongoose.Schema({
+const validator = require("validator");
+
+const usersSchema = new mongoose.Schema({
     fname: {
         type: String,
         required: true,
@@ -17,7 +18,7 @@ const userSchema = new mongoose.Schema({
         unique: true,
         validate(value) {
             if (!validator.isEmail(value)) {
-                throw Error("Not Valid Email")
+                throw Error("not valid email")
             }
         }
     },
@@ -25,10 +26,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        minlegth: 10,
-        maxlegth: 10
+        minlength: 10,
+        maxlength: 10
     },
     gender: {
+        type: String,
+        required: true,
+    },
+    status: {
         type: String,
         required: true,
     },
@@ -41,10 +46,10 @@ const userSchema = new mongoose.Schema({
         required: true,
     },
     datecreated:Date,
-    dateupdated:Date
+    dateUpdated:Date
 });
 
-//model
-const users = new mongoose.model("user",userSchema)
+// model
+const users = new mongoose.model("users",usersSchema);
 
 module.exports = users;

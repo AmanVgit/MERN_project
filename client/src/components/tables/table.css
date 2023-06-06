@@ -1,7 +1,11 @@
+/* *{
+    text-align: center;
+} */
 .img_parent img{
-    width: 35px;
+    width: 40px;
     border-radius: 50%;
 }
+
 
 .action{
     background: none !important;

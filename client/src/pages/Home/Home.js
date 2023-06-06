@@ -7,12 +7,17 @@ import Spiner from '../../components/spiner/Spiner'
 import "./home.css"
 import Alert from 'react-bootstrap/Alert';
 import Tables from '../../components/tables/Tables'
-import { addData } from '../../context/ContextProvider'
+import { addData,updateData } from '../../context/ContextProvider'
+import { usergetfunc } from '../../services/Apis' 
 
 
 const Home = () => {
 
+  const [userdata,setUserData] = useState([]);
+
   const [showspin,setShowSpin] = useState(true);
+
+  const {update,setUpdate} = useContext(updateData)
 
   const navigate = useNavigate();
 
@@ -22,17 +27,31 @@ const Home = () => {
     navigate("/register")
   }
 
+  //getting the user from database
+  const userGet = async()=>{
+    const response = await usergetfunc()
+    if(response.status===200){
+      setUserData(response.data)
+    }else{
+      console.log("Error for get user data");
+    }
+  }
+
   useEffect(()=>{
+    userGet();
     setTimeout(()=>{
       setShowSpin(false)
-    },500)
-  })
+    },1200)
+  },[])
   return (
     <>
     {/* this useradd part of code will show msg "successfully added" on home page if user has successfully registered */}
    {
      useradd ? <Alert variant="success" onClose={() => setUseradd("")} dismissible>{useradd.fname.toUpperCase()} Successfully Added</Alert>:""
    } 
+   {
+     update ? <Alert variant="primary" onClose={() => setUpdate("")} dismissible>{update.fname.toUpperCase()} Successfully Updated</Alert>:""
+   }
       <div className="container">
         <div className="main_div">
           {/* search add btn*/}
@@ -52,8 +71,8 @@ const Home = () => {
               <Button variant="primary" onClick={addUser}><i class="fa-solid fa-plus"></i>&nbsp; Add User</Button>
             </div>
           </div>
-          {/*export,gender,status*/}
 
+          {/*export,gender,status*/}
           <div className="filter_div mt-5 d-flex justify-content-between flex-wrap">
             <div className="export_csv">
               <Button className='export_btn'>Export To csv</Button>
@@ -131,7 +150,9 @@ const Home = () => {
           </div>
         </div>
         {
-          showspin ? <Spiner/> : <Tables />
+          showspin ? <Spiner/> : <Tables 
+            userdata = {userdata}
+          />
         }
       </div>
     </>

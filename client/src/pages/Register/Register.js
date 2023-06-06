@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Card from "react-bootstrap/Card"
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -6,8 +6,11 @@ import Row from 'react-bootstrap/Row';
 import Select from 'react-select';
 import Spiner from '../../components/spiner/Spiner'
 import { ToastContainer, toast } from "react-toastify"
+import { registerfunc } from "../../services/Apis"
+import { useNavigate } from "react-router-dom";
 import 'react-toastify/dist/ReactToastify.css';
 import "./register.css"
+import { addData } from '../../context/ContextProvider';
 
 const Register = () => {
 
@@ -28,6 +31,10 @@ const Register = () => {
   const [image, setImage] = useState("");
   //to change the image on selecting new image
   const [preview, setPreview] = useState("");
+
+  const navigate = useNavigate();
+
+  const {useradd, setUseradd} = useContext(addData)
 
   //status options
   const options = [
@@ -62,7 +69,7 @@ const Register = () => {
   }, [image])
 
   //submit userdata
-  const submitUserData = (e) => {
+  const submitUserData = async (e) => {
     e.preventDefault();
 
     //on submitting form lets just validate out entry
@@ -89,7 +96,45 @@ const Register = () => {
     } else if (location === "") {
       toast.error("Location is Required")
     } else {
-      toast.success("Registration succesfully done!")
+      console.log(image);
+
+      const data = new FormData();
+      data.append("fname", fname)
+      data.append("lname", lname)
+      data.append("email", email)
+      data.append("mobile", mobile)
+      data.append("gender", gender)
+      data.append("status", status)
+      data.append("user_profile", image)
+      data.append("location", location)
+
+      const config = {
+        "Content-Type": "multipart/form-data"
+      }
+                                         
+      //this is actually getting all the data
+      const response = await registerfunc(data, config);
+      console.log(response);
+      
+      ///This portion of code is emptying the register page and will navigate
+      //you to homepage
+      if (response.status === 200) {
+        setInputData({
+          ...inputdata,
+          fname: "",
+          lname: "",
+          email: "",
+          mobile: "",
+          gender: "",
+          location: ""
+        });
+        setStatus("")
+        setImage("")
+        setUseradd(response.data)
+        navigate("/");
+      }else{
+        toast.error("Something went wrong!")
+      }
     }
   }
 
@@ -153,7 +198,7 @@ const Register = () => {
                   <Form.Label>Select your Status</Form.Label>
                   <Select
                     options={options}
-                    value={status}
+                    // value={status}
                     onChange={setStatusValue}
                   />
                 </Form.Group>

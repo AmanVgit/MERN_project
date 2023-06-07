@@ -5,10 +5,27 @@ import Table from 'react-bootstrap/Table'
 import Dropdown from 'react-bootstrap/Dropdown'
 import Badge from 'react-bootstrap/Badge'
 import { BASE_URL } from '../../services/helper'
-import { NavLink } from 'react-router-dom'
+import { NavLink, Navigate } from 'react-router-dom'
+import { ToastContainer,toast } from "react-toastify"
+import { statuschangefunc } from '../../services/Apis'
 import "./table.css"
 
-const Tables = ({ userdata }) => {
+const Tables = ({ userdata,deleteUser,userGet }) => {
+
+  const handleChange = async (id, status) => {
+    const response = await statuschangefunc(id, status);
+
+    // console.log(response);
+
+    if (response.status === 200) {
+      userGet();
+      toast.success("Status Updated")
+    } else {
+      toast.error("error in pdating status")
+    }
+  }
+
+
   return (
     <>
       <div className="container">
@@ -19,10 +36,10 @@ const Tables = ({ userdata }) => {
                 <thead className='thead-dark'>
                   <tr className='table-dark'>
                     <th>ID</th>
-                    <th>Full Name</th>
-                    <th>Email</th>
+                    <th>&nbsp;Full Name</th>
+                    <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email</th>
                     <th>Gender</th>
-                    <th>&nbsp;&nbsp;&nbsp;Status</th>
+                    <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Status</th>
                     <th>Profile</th>
                     <th>Action</th>
                   </tr>
@@ -45,8 +62,8 @@ const Tables = ({ userdata }) => {
                                   </Badge>
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu>
-                                  <Dropdown.Item>Active</Dropdown.Item>
-                                  <Dropdown.Item>Inactive</Dropdown.Item>
+                                  <Dropdown.Item onClick={() => handleChange(element._id, "Active")}>Active</Dropdown.Item>
+                                  <Dropdown.Item onClick={() => handleChange(element._id, "InActive")}>InActive</Dropdown.Item>
                                 </Dropdown.Menu>
                               </Dropdown>
                             </td>
@@ -70,7 +87,10 @@ const Tables = ({ userdata }) => {
                                       <i class="fa-solid fa-pen-to-square" style={{ color: "blue" }}></i><span>Edit</span>
                                     </NavLink>
                                   </Dropdown.Item>
-                                  <Dropdown.Item><i class="fa-sharp fa-solid fa-trash" style={{ color: "red" }}></i><span>Delete</span>
+                                  <Dropdown.Item>
+                                  <div onClick={()=>deleteUser(element._id)}>
+                                    <i class="fa-sharp fa-solid fa-trash" style={{ color: "red" }}></i><span>Delete</span>
+                                  </div>
                                   </Dropdown.Item>
                                 </Dropdown.Menu>
                               </Dropdown>
@@ -85,6 +105,7 @@ const Tables = ({ userdata }) => {
             </Card>
           </div>
         </Row>
+        <ToastContainer />
       </div>
     </>
   )

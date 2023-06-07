@@ -4,20 +4,25 @@ import Button from 'react-bootstrap/Button'
 import Dropdown from 'react-bootstrap/Dropdown'
 import {useNavigate} from "react-router-dom"
 import Spiner from '../../components/spiner/Spiner'
+import { ToastContainer, toast } from "react-toastify"
 import "./home.css"
 import Alert from 'react-bootstrap/Alert';
 import Tables from '../../components/tables/Tables'
-import { addData,updateData } from '../../context/ContextProvider'
-import { usergetfunc } from '../../services/Apis' 
+import { addData,dltdata,updateData } from '../../context/ContextProvider'
+import { usergetfunc,deletefunc } from '../../services/Apis' 
 
 
 const Home = () => {
 
   const [userdata,setUserData] = useState([]);
-
   const [showspin,setShowSpin] = useState(true);
+  const [search,setSearch] = useState("");
+  const [gender,setGender] = useState("All");
+  const [status,setStatus] = useState("All");
+  const [sort,setSort] = useState("new");
 
   const {update,setUpdate} = useContext(updateData)
+  const { deletedata, setDLtdata } = useContext(dltdata)
 
   const navigate = useNavigate();
 
@@ -29,20 +34,31 @@ const Home = () => {
 
   //getting the user from database
   const userGet = async()=>{
-    const response = await usergetfunc()
+    const response = await usergetfunc(search,gender,status,sort)
     if(response.status===200){
       setUserData(response.data)
     }else{
-      console.log("Error for get user data");
+      console.log("Error in getting user data");
     }
   }
 
+  //user delete
+  const deleteuser = async(id)=>{
+      const response = await deletefunc(id);
+      if(response.status==200){
+        userGet();
+        setDLtdata(response.data)
+      }else{
+        toast.error("Error in deleting")
+      }
+  }
+  
   useEffect(()=>{
     userGet();
     setTimeout(()=>{
       setShowSpin(false)
     },1200)
-  },[])
+  },[search,gender,status,sort])
   return (
     <>
     {/* this useradd part of code will show msg "successfully added" on home page if user has successfully registered */}
@@ -51,6 +67,9 @@ const Home = () => {
    } 
    {
      update ? <Alert variant="primary" onClose={() => setUpdate("")} dismissible>{update.fname.toUpperCase()} Successfully Updated</Alert>:""
+   }
+   {
+     deletedata ? <Alert variant="danger" onClose={() => setDLtdata("")} dismissible>{deletedata.fname.toUpperCase()} Successfully Deleted</Alert>:""
    }
       <div className="container">
         <div className="main_div">
@@ -63,6 +82,7 @@ const Home = () => {
                   placeholder='Search'
                   className='me-2'
                   aria-label="Search"
+                  onChange={(e)=>setSearch(e.target.value)}
                 />
                 <Button variant="success" className='search_btn'>Search</Button>
               </Form>
@@ -86,6 +106,7 @@ const Home = () => {
                     label={"All"}
                     name="gender"
                     value={"All"}
+                    onChange={(e)=>setGender(e.target.value)}
                     defaultChecked
                   />
                   <Form.Check
@@ -93,6 +114,7 @@ const Home = () => {
                     label={"Male"}
                     name="gender"
                     value={"Male"}
+                    onChange={(e)=>setGender(e.target.value)}
                     
                   />
                   <Form.Check
@@ -100,7 +122,7 @@ const Home = () => {
                     label={"Female"}
                     name="gender"
                     value={"Female"}
-                    
+                    onChange={(e)=>setGender(e.target.value)}
                   />
                 </div>
               </div>
@@ -114,8 +136,8 @@ const Home = () => {
                   <i class="fa-solid fa-sort"></i>
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                  <Dropdown.Item>New</Dropdown.Item>
-                  <Dropdown.Item>Old</Dropdown.Item>
+                  <Dropdown.Item onClick={()=>setSort("new")}>New</Dropdown.Item>
+                  <Dropdown.Item onClick={()=>setSort("old")}>Old</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
             </div>
@@ -130,19 +152,22 @@ const Home = () => {
                     label={"All"}
                     name="status"
                     value={"All"}
+                    onChange={(e)=>setStatus(e.target.value)}
                     defaultChecked
                   />
                   <Form.Check
                     type={"radio"}
                     label={"Active"}
                     name="status"
-                    value={"Active"}  
+                    value={"Active"} 
+                    onChange={(e)=>setStatus(e.target.value)} 
                   />
                   <Form.Check
                     type={"radio"}
                     label={"InActive"}
                     name="status"
                     value={"InActive"}
+                    onChange={(e)=>setStatus(e.target.value)}
                   />
                 </div>
               </div>
@@ -152,6 +177,8 @@ const Home = () => {
         {
           showspin ? <Spiner/> : <Tables 
             userdata = {userdata}
+            deleteUser = {deleteuser}
+            userGet = {userGet}
           />
         }
       </div>

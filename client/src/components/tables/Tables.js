@@ -21,7 +21,7 @@ const Tables = ({ userdata,deleteUser,userGet }) => {
       userGet();
       toast.success("Status Updated")
     } else {
-      toast.error("error in pdating status")
+      toast.error("error in updating status")
     }
   }
 

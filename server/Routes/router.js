@@ -10,6 +10,7 @@ router.get("/user/:id",controllers.singleuserget)
 router.put("/user/edit/:id",upload.single("user_profile"),controllers.useredit);
 router.delete("/user/delete/:id",controllers.userdelete);
 router.put("/user/status/:id",controllers.userstatus);
+router.get("/userexport",controllers.userExport);
 
 
 module.exports = router   

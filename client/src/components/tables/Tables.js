@@ -1,45 +1,43 @@
 import React from 'react'
-import Row from 'react-bootstrap/Row'
-import Card from 'react-bootstrap/Card'
-import Table from 'react-bootstrap/Table'
-import Dropdown from 'react-bootstrap/Dropdown'
-import Badge from 'react-bootstrap/Badge'
-import { BASE_URL } from '../../services/helper'
-import { NavLink, Navigate } from 'react-router-dom'
-import { ToastContainer,toast } from "react-toastify"
-import { statuschangefunc } from '../../services/Apis'
+import Row from 'react-bootstrap/Row';
+import Card from 'react-bootstrap/Card';
+import Table from 'react-bootstrap/Table';
+import Dropdown from 'react-bootstrap/Dropdown';
+import Badge from 'react-bootstrap/Badge';
+import Paginations from '../pagination/Paginations';
+import { BASE_URL } from '../../services/helper';
+import { NavLink } from 'react-router-dom';
+import { statuschangefunc } from "../../services/Apis"
+import { ToastContainer, toast } from "react-toastify"
 import "./table.css"
 
-const Tables = ({ userdata,deleteUser,userGet }) => {
+const Tables = ({ userdata, deleteUser, userGet, handlePrevious, handleNext, page, pageCount, setPage }) => {
 
   const handleChange = async (id, status) => {
     const response = await statuschangefunc(id, status);
-
-    // console.log(response);
 
     if (response.status === 200) {
       userGet();
       toast.success("Status Updated")
     } else {
-      toast.error("error in updating status")
+      toast.error("error ")
     }
   }
-
 
   return (
     <>
       <div className="container">
         <Row>
           <div className="col mt-0">
-            <Card className="shadow">
-              <Table className="align-align-items-center" responsic="sm">
+            <Card className='shadow'>
+              <Table className='align-items-center' responsive="sm">
                 <thead className='thead-dark'>
                   <tr className='table-dark'>
                     <th>ID</th>
-                    <th>&nbsp;Full Name</th>
-                    <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email</th>
+                    <th>FullName</th>
+                    <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email</th>
                     <th>Gender</th>
-                    <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Status</th>
+                    <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Status</th>
                     <th>Profile</th>
                     <th>Action</th>
                   </tr>
@@ -50,14 +48,14 @@ const Tables = ({ userdata,deleteUser,userGet }) => {
                       return (
                         <>
                           <tr>
-                            <td>{index + 1}</td>
-                            <td>{element.fname + " " + element.lname}</td>
+                            <td>{index + 1 + (page - 1)*4}</td> 
+                            <td>{element.fname + element.lname}</td>
                             <td>{element.email}</td>
-                            <td>{element.gender == "Male" ? "Male" : "Female"}</td>
+                            <td>{element.gender == "Male" ? "M" : "F"}</td>
                             <td className='d-flex align-items-center'>
                               <Dropdown className='text-center'>
                                 <Dropdown.Toggle className='dropdown_btn' id="dropdown-basic">
-                                  <Badge bg={element.status == "Active" ? "success" : "danger"}>
+                                  <Badge bg={element.status == "Active" ? "primary" : "danger"}>
                                     {element.status} <i class="fa-solid fa-angle-down"></i>
                                   </Badge>
                                 </Dropdown.Toggle>
@@ -67,7 +65,6 @@ const Tables = ({ userdata,deleteUser,userGet }) => {
                                 </Dropdown.Menu>
                               </Dropdown>
                             </td>
-
                             <td className='img_parent'>
                               <img src={`${BASE_URL}/uploads/${element.profile}`} alt="img" />
                             </td>
@@ -77,20 +74,20 @@ const Tables = ({ userdata,deleteUser,userGet }) => {
                                   <i class="fa-solid fa-ellipsis-vertical"></i>
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu>
-                                  <Dropdown.Item>
+                                  <Dropdown.Item >
                                     <NavLink to={`/userprofile/${element._id}`} className="text-decoration-none">
                                       <i class="fa-solid fa-eye" style={{ color: "green" }}></i> <span>View</span>
                                     </NavLink>
                                   </Dropdown.Item>
-                                  <Dropdown.Item>
+                                  <Dropdown.Item >
                                     <NavLink to={`/edit/${element._id}`} className="text-decoration-none">
-                                      <i class="fa-solid fa-pen-to-square" style={{ color: "blue" }}></i><span>Edit</span>
+                                      <i class="fa-solid fa-pen-to-square" style={{ color: "blue" }}></i> <span>Edit</span>
                                     </NavLink>
                                   </Dropdown.Item>
-                                  <Dropdown.Item>
-                                  <div onClick={()=>deleteUser(element._id)}>
-                                    <i class="fa-sharp fa-solid fa-trash" style={{ color: "red" }}></i><span>Delete</span>
-                                  </div>
+                                  <Dropdown.Item >
+                                    <div onClick={() => deleteUser(element._id)}>
+                                      <i class="fa-solid fa-trash" style={{ color: "red" }}></i> <span>Delete</span>
+                                    </div>
                                   </Dropdown.Item>
                                 </Dropdown.Menu>
                               </Dropdown>
@@ -98,10 +95,19 @@ const Tables = ({ userdata,deleteUser,userGet }) => {
                           </tr>
                         </>
                       )
-                    }) : <div className="no_data text-center">No data found</div>
+                    }) : <div className='no_data text-center'>NO Data Found</div>
                   }
+
+
                 </tbody>
               </Table>
+              <Paginations
+                handlePrevious={handlePrevious}
+                handleNext={handleNext}
+                page={page}
+                pageCount={pageCount}
+                setPage={setPage}
+              />
             </Card>
           </div>
         </Row>

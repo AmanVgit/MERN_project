@@ -20,6 +20,8 @@ const Home = () => {
   const [gender, setGender] = useState("All");
   const [status, setStatus] = useState("All");
   const [sort, setSort] = useState("new");
+  const [page, setPage] = useState(1);
+  const [pageCount, setPageCount] = useState(0);
 
   const { update, setUpdate } = useContext(updateData)
   const { deletedata, setDLtdata } = useContext(dltdata)
@@ -34,11 +36,12 @@ const Home = () => {
 
   //getting the user from database
   const userGet = async () => {
-    const response = await usergetfunc(search, gender, status, sort)
+    const response = await usergetfunc(search, gender, status, sort, page);
     if (response.status === 200) {
-      setUserData(response.data)
+      setUserData(response.data.usersdata);
+      setPageCount(response.data.Pagination.pageCount)
     } else {
-      console.log("Error in getting user data");
+      console.log("error for get user data")
     }
   }
 
@@ -53,14 +56,31 @@ const Home = () => {
     }
   }
 
-   // export user
-   const exportuser = async()=>{
+  // export user
+  const exportuser = async () => {
     const response = await exporttocsvfunc();
-    if(response.status === 200){
-      window.open(response.data.downloadUrl,"blank")
-    }else{
+    if (response.status === 200) {
+      window.open(response.data.downloadUrl, "blank")
+    } else {
       toast.error("Something went wrong!")
     }
+  }
+
+  // pagination
+  // handle prev btn
+  const handlePrevious = () => {
+    setPage(() => {
+      if (page === 1) return page;
+      return page - 1
+    })
+  }
+
+  // handle next btn
+  const handleNext = () => {
+    setPage(() => {
+      if (page === pageCount) return page;
+      return page + 1
+    })
   }
 
   useEffect(() => {
@@ -68,7 +88,7 @@ const Home = () => {
     setTimeout(() => {
       setShowSpin(false)
     }, 1200)
-  }, [search, gender, status, sort])
+  }, [search, gender, status, sort,page])
   return (
     <>
       {/* this useradd part of code will show msg "successfully added" on home page if user has successfully registered */}
@@ -189,6 +209,11 @@ const Home = () => {
             userdata={userdata}
             deleteUser={deleteuser}
             userGet={userGet}
+            handlePrevious={handlePrevious}
+            handleNext={handleNext}
+            page={page}
+            pageCount={pageCount}
+            setPage={setPage}
           />
         }
       </div>
